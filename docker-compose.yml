@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    user: "1000:1000"
+    restart: always
+    ports:
+      - "4533:4533"
+    volumes:
+      - ./data:/data
+      - ./music:/music:ro
+      - ./cache:/cache
+    environment:
+      ND_MUSICFOLDER: /music
+      ND_DATAFOLDER: /data
+      ND_LOGLEVEL: info
+      ND_CACHEFOLDER: /cache
+      ND_DEFAULTTHEME: Spotify-ish
+      ND_UIWELCOMEMESSAGE: "Welcome to music.kubehomelab.space"
+      ND_MUSICBRAINZ_ENABLED: "true"
+      ND_MUSICBRAINZ_SERVER: "https://musicbrainz.org"
+      ND_MUSICBRAINZ_COVERART_ENABLED: "true"
+      ND_MUSICBRAINZ_USERAGENT: "Navidrome (https://music.kubehomelab.space)"
+
+  uploader:
+    image: python:3.13.9-slim
+    container_name: navidrome_uploader
+    working_dir: /app
+    restart: always
+    user: "1000:1000"
+    volumes:
+      - ./uploader:/app
+      - ./music/All/All:/uploads
+    command: python3 /app/uploader.py
+    ports:
+      - "8091:8091"
